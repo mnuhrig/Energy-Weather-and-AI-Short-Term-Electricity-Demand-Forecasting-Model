@@ -1,0 +1,1 @@
+This folder contains the prediction figures and evaluation metrics for each experiment. The results correspond to the best hyperparameter combinations obtained from the grid search.
