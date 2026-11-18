@@ -1,0 +1,34 @@
+AMBER RESEARCH MATERIALS — LICENSE AND DATA NOTICE
+
+Copyright (c) 2026 AMBER research contributors.
+
+1. Original AMBER materials
+
+The following files, to the extent they are original works controlled by their respective copyright holders, are provided as researcher-authored materials:
+
+- scripts/architecture.py
+- scripts/model_weights.pth
+- scripts/model_config.json
+- scripts/normalization.json
+- scripts/contract.json
+
+No open-source or Creative Commons license is granted for these files by this notice. Their use, redistribution, modification, or commercial exploitation requires permission from the applicable rights holders, except where otherwise permitted by law or by a separate written authorization.
+
+2. Research data
+
+The following files are NOT licensed by this notice:
+
+- scripts/training.csv
+- data/serie_energia.csv
+
+These data are associated with research on electricity demand and meteorological conditions in Entre Rios, Argentina. Consult the dataset's original publication and applicable license terms. Where the data are distributed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0), that license's noncommercial restriction remains in force unless all relevant rights holders grant a separate authorization.
+
+3. No implied relicensing
+
+Public availability in this GitHub repository does not itself grant additional rights, override third-party rights, or change the license of previously published materials.
+
+4. Permissions
+
+For permissions beyond the terms already applicable to a particular file, contact the repository maintainer and, where necessary, the other rights holders.
+
+This notice is informational and is not a substitute for a separate license grant from the relevant rights holders.
