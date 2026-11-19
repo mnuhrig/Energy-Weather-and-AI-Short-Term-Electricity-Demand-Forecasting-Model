@@ -1,0 +1,203 @@
+{
+  "version": 3,
+  "status": "public_contract_robust_meteorological_subset_selection",
+  "cutoffs": [
+    "2022-04-15",
+    "2022-05-27",
+    "2022-07-08",
+    "2022-08-19",
+    "2022-09-30",
+    "2022-11-11",
+    "2022-12-23",
+    "2023-02-03",
+    "2023-03-17"
+  ],
+  "history_days": 7,
+  "model_horizon": 14,
+  "output_days": 30,
+  "future_exogenous_days": 42,
+  "recursion": {
+    "origin_offsets": [
+      0,
+      14,
+      28
+    ],
+    "retain": "first 30 of 42 concatenated final model outputs",
+    "demand_feedback": "own scenario final fused prediction, unrounded, no observations after cutoff",
+    "state": "reset all internal recurrent states for each model invocation",
+    "historical_exogenous": "supplied values for each date, with scenario interventions retained"
+  },
+  "individual_ablation": {
+    "features": [
+      "tmin",
+      "tmax",
+      "tmean",
+      "slhf",
+      "tp",
+      "skt",
+      "sp",
+      "sro",
+      "sshf",
+      "ssrd",
+      "ssr",
+      "strd",
+      "str",
+      "ws",
+      "tcc",
+      "r"
+    ],
+    "future_relative_days_inclusive": [
+      1,
+      30
+    ],
+    "replacement": "normalization.json training mean for that variable, applied before scaling",
+    "original_history": "unchanged",
+    "future_days_31_to_42": "unchanged",
+    "attribution": "full minus ablated prediction in original demand units"
+  },
+  "numerics": {
+    "model_dtype": "float32 reference",
+    "preprocessing_dtype": "float64 reference",
+    "scaling": "x * scale + offset using normalization.json; no fitting and no clipping",
+    "inverse_demand": "(scaled_prediction - demand_offset) / demand_scale",
+    "feedback": "keep unrounded scaled model output; implementations with equivalent numerics are accepted",
+    "prediction_atol": 0.02,
+    "prediction_rtol": 0.0,
+    "attribution_atol": 0.03,
+    "attribution_rtol": 0.0,
+    "attention_atol": 2e-06,
+    "interaction_atol": 0.05,
+    "interaction_rtol": 0.0,
+    "attention_rtol": 0.0,
+    "reduced_prediction_atol": 0.02,
+    "reduced_prediction_rtol": 0.0
+  },
+  "execution": {
+    "command": "python /app/solution.py --input-dir /app/input --output-dir /app/output",
+    "network": "not required",
+    "reference_device": "CPU",
+    "reference_threads": 1
+  },
+  "outputs": {
+    "predictions_30d.csv": {
+      "columns": [
+        "cutoff_date",
+        "target_date",
+        "lead_day",
+        "prediction"
+      ],
+      "rows": 270
+    },
+    "predictions_top5.csv": {
+      "columns": [
+        "cutoff_date",
+        "target_date",
+        "lead_day",
+        "prediction"
+      ],
+      "rows": 270
+    },
+    "attributions.csv": {
+      "columns": [
+        "cutoff_date",
+        "target_date",
+        "lead_day",
+        "feature",
+        "attribution"
+      ],
+      "rows": 4320
+    },
+    "top5.json": {
+      "keys": [
+        "selected_features",
+        "mean_attention"
+      ],
+      "selected_features": "1 to 7 distinct meteorological feature names; fixed for all cutoffs and scenarios; not required to match attention ranking",
+      "mean_attention": "object mapping all 16 meteorological feature names to finite mean weights"
+    },
+    "pairwise_interactions.csv": {
+      "columns": [
+        "cutoff_date",
+        "target_date",
+        "lead_day",
+        "feature_i",
+        "feature_j",
+        "interaction"
+      ],
+      "rows": 32400
+    }
+  },
+  "csv_format": {
+    "encoding": "UTF-8",
+    "delimiter": ",",
+    "dates": "YYYY-MM-DD",
+    "ordering": "cutoff_date ascending, lead_day ascending, feature ASCII ascending when present",
+    "coverage": "exact keys; no duplicates, extra columns, extra rows, index column, NaN or infinity"
+  },
+  "grader_owned_diagnostics": {
+    "primary_metric": "RobustnessRMSE",
+    "formula": "sqrt(mean((reduced_prediction - full_prediction)^2))",
+    "aggregation": "all private scenario and forecast lead pairs equally weighted",
+    "threshold_mwh": 600.0,
+    "observed_demand_required": false
+  },
+  "attention_summary": {
+    "attention": "MeteorologicalVariableAttention returned weights, unperturbed model in eval mode",
+    "training_window_start_indices": {
+      "first": 0,
+      "last_inclusive": 3313,
+      "count": 3314
+    },
+    "window_note": "Reproduce original range(L-(7+14)); intentionally excludes the last mathematically possible window.",
+    "aggregation": "arithmetic mean over all 3314 windows, accumulate in float64"
+  },
+  "feature_selection": {
+    "allowed_features": "subset of model_config.json meteo_cols",
+    "minimum_selected": 1,
+    "maximum_selected": 7,
+    "fixed_across_cutoffs": true,
+    "ranking_requirement": "none; no required selection algorithm or attention ranking",
+    "selection_data": "chronological training data and 27 public development scenarios only; private scenarios unavailable",
+    "global_optimality_required": false,
+    "excluded_feature_replacement": "training mean from normalization.json before scaling",
+    "reduced_history": "replace excluded features in original 7-day historical meteorological window",
+    "reduced_future": "replace excluded features in all 42 supplied future exogenous days",
+    "reduced_feedback": "own reduced-input recursive predictions",
+    "metric": "pooled RobustnessRMSE between reduced-input and full-input AMBER forecasts on independently generated private meteorological perturbation scenarios",
+    "criterion": "RobustnessRMSE <= 600.0 MWh across all private scenarios and 30 forecast leads",
+    "max_robustness_rmse_mwh": 600.0
+  },
+  "pairwise_interaction": {
+    "features": "all 120 unordered pairs of 16 meteorological variables",
+    "future_relative_days_inclusive": [
+      1,
+      30
+    ],
+    "original_history": "unchanged",
+    "future_days_31_to_42": "unchanged",
+    "persistence": "intervened future values persist when later entering recursive history",
+    "recursive_state": "independent trajectory for each pair",
+    "formula": "full - single_i - single_j + joint_ij in original demand units"
+  },
+  "reproducibility": {
+    "fixed_random_seed_for_stochastic_selection": true,
+    "identical_inputs": "same selected subset and numerically equivalent output files"
+  },
+  "robustness_evaluation": {
+    "public_development_dir": "public_development",
+    "public_scenario_count": 27,
+    "scenarios_per_cutoff": 3,
+    "scenario_files": [
+      "history.csv",
+      "future_exogenous.csv"
+    ],
+    "history_rows": 7,
+    "future_exogenous_rows": 42,
+    "perturbation_domain": "future meteorological values; historical observations unchanged",
+    "private_scenarios": "independently generated; verifier-only; not supplied to agent",
+    "metric": "sqrt(mean((Prediction_reduced - Prediction_full)^2))",
+    "max_robustness_rmse_mwh": 600.0,
+    "evaluation": "verifier independently runs frozen AMBER full and reduced with submitted selected_features and independent unrounded feedback",
+    "threshold_status": "fixed for this public task contract; reference and fresh private evaluation validation pending"
+  }
+}
