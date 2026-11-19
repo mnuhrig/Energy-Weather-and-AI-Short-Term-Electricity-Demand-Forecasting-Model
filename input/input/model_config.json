@@ -1,0 +1,30 @@
+{
+  "tw": 7,
+  "ftw": 14,
+  "num_layers": 2,
+  "hidden_dim_lstm": 15,
+  "M": 20,
+  "P": 20,
+  "meteo_d_model": 24,
+  "fusion_hidden": 32,
+  "meteo_dropout": 0.0,
+  "target_used": "demand",
+  "meteo_cols": [
+    "tmin",
+    "tmax",
+    "tmean",
+    "slhf",
+    "tp",
+    "skt",
+    "sp",
+    "sro",
+    "sshf",
+    "ssrd",
+    "ssr",
+    "strd",
+    "str",
+    "ws",
+    "tcc",
+    "r"
+  ]
+}
